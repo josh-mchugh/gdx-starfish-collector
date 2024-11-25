@@ -3,73 +3,119 @@ package net.sailware.starfish
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.Input.Keys
 
 class Main extends ApplicationAdapter:
 
-  var batch: SpriteBatch = null
-
-  var turtleTexture: Texture = null
-  var turtleRectangle: Rectangle = null
-  var turtleX = 0F
-  var turtleY = 0F
-
-  var starfishTexture: Texture = null
-  var starfishRectangle: Rectangle = null
-  var starfishX = 0F
-  var starfishY = 0F
-
-  var oceanTexture: Texture = null
-
-  var winMessageTexture: Texture = null
-
-  var win = false
+  var stage: Stage = null
+  var background: Background = null
+  var turtle: Turtle = null
+  var starfish: Starfish = null
 
   override def create(): Unit =
-    batch = new SpriteBatch()
-    turtleTexture = new Texture("turtle-1.png")
-    turtleX = 20F
-    turtleY = 20F
-    turtleRectangle = new Rectangle(turtleX, turtleY, turtleTexture.getWidth().toFloat, turtleTexture.getHeight().toFloat)
+    background = new Background()
+    turtle = new Turtle()
+    starfish = new Starfish()
 
-    starfishTexture = new Texture("starfish.png")
-    starfishX = 380F
-    starfishY = 380F
-    starfishRectangle = new Rectangle(starfishX, starfishY, starfishTexture.getWidth().toFloat, starfishTexture.getHeight().toFloat)
+    stage = new Stage()
 
-    oceanTexture = new Texture("water.jpg")
-
-    winMessageTexture = new Texture("you-win.png")
+    stage.addActor(background)
+    stage.addActor(starfish)
+    stage.addActor(turtle)
 
   override def render(): Unit =
-    if (Gdx.input.isKeyPressed(Keys.LEFT))
-        turtleX -= 1
-    if (Gdx.input.isKeyPressed(Keys.RIGHT))
-        turtleX += 1
-    if (Gdx.input.isKeyPressed(Keys.UP))
-        turtleY += 1
-    if (Gdx.input.isKeyPressed(Keys.DOWN))
-      turtleY -= 1
+    val delta = Gdx.graphics.getDeltaTime()
 
-    turtleRectangle.setPosition(turtleX, turtleY)
+    stage.act(delta)
 
-    if (turtleRectangle.overlaps(starfishRectangle))
-      win = true
+    if(turtle.rectangle.overlaps(starfish.rectangle))
+      starfish.remove()
+      stage.addActor(new WinOverlay())
 
     ScreenUtils.clear(0, 0, 0, 1F)
-    batch.begin()
-    batch.draw(oceanTexture, 0, 0)
-    if (!win)
-      batch.draw(starfishTexture, starfishX, starfishY)
-    else
-      batch.draw(winMessageTexture, 180, 180)
-    batch.draw(turtleTexture, turtleX, turtleY)
-    batch.end()
+
+    stage.draw()
 
   override def dispose(): Unit =
-    batch.dispose()
-    turtleTexture.dispose()
-    oceanTexture.dispose()
+    stage.dispose()
+
+class Turtle extends Actor:
+
+  this.setX(20F)
+  this.setY(20F)
+  val texture = new Texture("turtle-1.png")
+  val textureRegion = new TextureRegion(texture)
+  val rectangle = new Rectangle(getX(), getY(), texture.getWidth().toFloat, texture.getHeight().toFloat)
+
+  setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
+
+  override def act(delta: Float): Unit =
+    super.act(delta)
+    if (Gdx.input.isKeyPressed(Keys.LEFT))
+      this.moveBy(-1, 0)
+    if (Gdx.input.isKeyPressed(Keys.RIGHT))
+      this.moveBy(1, 0)
+    if (Gdx.input.isKeyPressed(Keys.UP))
+      this.moveBy(0, 1)
+    if (Gdx.input.isKeyPressed(Keys.DOWN))
+      this.moveBy(0, -1)
+
+    rectangle.setPosition(getX(), getY())
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit =
+    super.draw(batch, parentAlpha)
+
+    batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
+
+class Starfish extends Actor:
+
+  this.setX(380F)
+  this.setY(380F)
+  val texture = new Texture("starfish.png")
+  val textureRegion = new TextureRegion(texture)
+  val rectangle = new Rectangle(getX(), getY(), texture.getWidth().toFloat, texture.getHeight().toFloat)
+
+  setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
+
+  override def act(delta: Float): Unit =
+    rectangle.setPosition(getX(), getY())
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit =
+    super.draw(batch, parentAlpha)
+
+    batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
+
+class Background extends Actor:
+
+  this.setX(0F)
+  this.setY(0F)
+  val texture = new Texture("water.jpg")
+  val textureRegion = new TextureRegion(texture)
+
+  setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit =
+    super.draw(batch, parentAlpha)
+
+    batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
+
+class WinOverlay extends Actor:
+
+  this.setX(180F)
+  this.setY(180F)
+  val texture = new Texture("you-win.png")
+  val textureRegion = new TextureRegion(texture)
+
+  setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit =
+    super.draw(batch, parentAlpha)
+
+    batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
