@@ -48,8 +48,7 @@ class Main extends ApplicationAdapter:
 
 class Turtle extends Actor:
 
-  this.setX(20F)
-  this.setY(20F)
+  this.setPosition(20F, 20F)
   val texture = new Texture("turtle-1.png")
   val textureRegion = new TextureRegion(texture)
   val rectangle = new Rectangle(getX(), getY(), texture.getWidth().toFloat, texture.getHeight().toFloat)
@@ -76,8 +75,7 @@ class Turtle extends Actor:
 
 class Starfish extends Actor:
 
-  this.setX(380F)
-  this.setY(380F)
+  this.setPosition(380F, 380F)
   val texture = new Texture("starfish.png")
   val textureRegion = new TextureRegion(texture)
   val rectangle = new Rectangle(getX(), getY(), texture.getWidth().toFloat, texture.getHeight().toFloat)
@@ -94,8 +92,7 @@ class Starfish extends Actor:
 
 class Background extends Actor:
 
-  this.setX(0F)
-  this.setY(0F)
+  this.setPosition(0F, 0F)
   val texture = new Texture("water.jpg")
   val textureRegion = new TextureRegion(texture)
 
@@ -108,8 +105,7 @@ class Background extends Actor:
 
 class WinOverlay extends Actor:
 
-  this.setX(180F)
-  this.setY(180F)
+  this.setPosition(180F, 180F)
   val texture = new Texture("you-win.png")
   val textureRegion = new TextureRegion(texture)
 
