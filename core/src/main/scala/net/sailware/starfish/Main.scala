@@ -1,8 +1,9 @@
 package net.sailware.starfish
 
-import com.badlogic.gdx.ApplicationAdapter
+import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.Texture.TextureFilter
 import com.badlogic.gdx.graphics.g2d.Animation
@@ -19,42 +20,82 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ScreenUtils
 
-class Main extends ApplicationAdapter:
+class Main extends Game:
 
-  var mainStage: Stage = null
-  var uiStage: Stage = null
-  var background: Background = null
-  var turtle: Turtle = null
+  var stage: Stage = null
   var starfish: Starfish = null
+  var turtle: Turtle = null
 
   override def create(): Unit =
-    mainStage = Stage()
-    uiStage = Stage()
-    background = Background()
-    turtle = Turtle()
+    stage = Stage()
     starfish = Starfish()
+    turtle = Turtle()
 
-    mainStage.addActor(background)
-    mainStage.addActor(starfish)
-    mainStage.addActor(turtle)
+    stage.addActor(Background())
+    stage.addActor(starfish)
+    stage.addActor(turtle)
+
+    setScreen(MenuScreen())
 
   override def render(): Unit =
     val delta = Gdx.graphics.getDeltaTime()
 
-    mainStage.act(delta)
-    uiStage.act(delta)
+    stage.act(delta)
 
     if(turtle.boundry.getBoundingRectangle.overlaps(starfish.rectangle))
       starfish.remove()
-      mainStage.addActor(WinOverlay())
+      stage.addActor(WinOverlay())
 
     ScreenUtils.clear(0, 0, 0, 1F)
 
-    mainStage.draw()
-    uiStage.draw()
+    stage.draw()
 
   override def dispose(): Unit =
-    mainStage.dispose()
+    stage.dispose()
+
+class MenuScreen extends Screen:
+
+  val stage = Stage()
+
+  override def dispose(): Unit = {  }
+
+  override def hide(): Unit = {  }
+
+  override def pause(): Unit =  {  }
+
+  override def render(delta: Float): Unit =
+    stage.addActor(Background())
+    stage.addActor(MenuTitle())
+
+  override def resize(x: Int, y: Int): Unit = {  }
+
+  override def resume(): Unit = { }
+
+  override def show(): Unit = {  }
+
+class MenuTitle extends Actor:
+  val texture = new Texture("starfish-collector.png")
+  val textureRegion = new TextureRegion(texture)
+  setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
+  this.setPosition(400F - getWidth() / 2, 300F - getHeight() / 2)
+  moveBy(0, 100)
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit =
+    super.draw(batch, parentAlpha)
+
+    batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
+
+class MenuStart extends Actor:
+  val texture = new Texture("message-start.png")
+  val textureRegion = new TextureRegion(texture)
+  setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
+  this.setPosition(400F - getWidth() / 2, 300F - getHeight() / 2)
+  moveBy(0, -100)
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit =
+    super.draw(batch, parentAlpha)
+
+    batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
 
 class Turtle extends Actor:
 
