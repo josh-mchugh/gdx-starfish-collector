@@ -21,37 +21,40 @@ import com.badlogic.gdx.utils.ScreenUtils
 
 class Main extends ApplicationAdapter:
 
-  var stage: Stage = null
+  var mainStage: Stage = null
+  var uiStage: Stage = null
   var background: Background = null
   var turtle: Turtle = null
   var starfish: Starfish = null
 
   override def create(): Unit =
-    background = new Background()
-    turtle = new Turtle()
-    starfish = new Starfish()
+    mainStage = Stage()
+    uiStage = Stage()
+    background = Background()
+    turtle = Turtle()
+    starfish = Starfish()
 
-    stage = new Stage()
-
-    stage.addActor(background)
-    stage.addActor(starfish)
-    stage.addActor(turtle)
+    mainStage.addActor(background)
+    mainStage.addActor(starfish)
+    mainStage.addActor(turtle)
 
   override def render(): Unit =
     val delta = Gdx.graphics.getDeltaTime()
 
-    stage.act(delta)
+    mainStage.act(delta)
+    uiStage.act(delta)
 
     if(turtle.boundry.getBoundingRectangle.overlaps(starfish.rectangle))
       starfish.remove()
-      stage.addActor(new WinOverlay())
+      mainStage.addActor(WinOverlay())
 
     ScreenUtils.clear(0, 0, 0, 1F)
 
-    stage.draw()
+    mainStage.draw()
+    uiStage.draw()
 
   override def dispose(): Unit =
-    stage.dispose()
+    mainStage.dispose()
 
 class Turtle extends Actor:
 
