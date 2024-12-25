@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ScreenUtils
+import scala.collection.mutable.ListBuffer
 
 class Main extends Game:
 
@@ -69,10 +70,15 @@ class MenuImage(src: String, offset: (Float, Float)) extends Actor:
 
 class LevelScreen extends Screen:
   val stage = Stage()
-  val starfish = Starfish()
   val turtle = Turtle()
+  val starfishes = List(
+      Starfish((400, 400)),
+      Starfish((500, 100)),
+      Starfish((100, 450)),
+      Starfish((250, 250))
+  )
   stage.addActor(Background())
-  stage.addActor(starfish)
+  starfishes.foreach(starfish => stage.addActor(starfish))
   stage.addActor(turtle)
 
   override def render(delta: Float): Unit =
@@ -80,9 +86,10 @@ class LevelScreen extends Screen:
 
     stage.act(delta)
 
-    if(turtle.boundry.getBoundingRectangle.overlaps(starfish.rectangle))
-      starfish.remove()
-      stage.addActor(WinOverlay())
+    for starfish <- starfishes do
+      if(turtle.boundry.getBoundingRectangle.overlaps(starfish.rectangle))
+        starfish.remove()
+        stage.addActor(WinOverlay())
 
     ScreenUtils.clear(0, 0, 0, 1F)
 
@@ -132,12 +139,15 @@ class Turtle extends Actor:
     if Gdx.input.isKeyPressed(Keys.LEFT) then accelerateAtAngle(180)
     if Gdx.input.isKeyPressed(Keys.RIGHT) then accelerateAtAngle(0)
     if Gdx.input.isKeyPressed(Keys.UP) then accelerateAtAngle(90)
+
     if Gdx.input.isKeyPressed(Keys.DOWN) then accelerateAtAngle(270)
 
     applyPhysics(delta)
 
+    // set rotation when velocity is moving
     if velocity.len() > 0 then setRotation(velocity.angleDeg())
 
+    // display move animation
     if velocity.len() > 0 then elapsedTime += delta
 
     this.boundry.setPosition(getX(), getY())
@@ -147,14 +157,10 @@ class Turtle extends Actor:
 
     batch.draw(animation.getKeyFrame(elapsedTime), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
 
-  def applyPhysics(delta: Float): Unit =
+  private def applyPhysics(delta: Float): Unit =
     velocity.add(accelerationVector.x * delta, accelerationVector.y * delta)
 
-    val speed = MathUtils.clamp(
-        if accelerationVector.len() == 0 then velocity.len() - deceleration * delta else velocity.len(),
-        0,
-        maxSpeed
-    )
+    val speed = computeSpeed(delta)
     if velocity.len() == 0 then
       velocity.set(speed, 0)
     else
@@ -167,9 +173,14 @@ class Turtle extends Actor:
   private def accelerateAtAngle(angle: Float): Unit =
     accelerationVector.add(new Vector2(acceleration, 0).setAngleDeg(angle))
 
-class Starfish extends Actor:
+  private def computeSpeed(delta: Float): Float =
+    val speed = if accelerationVector.len() == 0 then velocity.len() - deceleration * delta else velocity.len()
+    MathUtils.clamp(speed, 0, maxSpeed)
 
-  this.setPosition(380F, 380F)
+class Starfish(position: (Float, Float)) extends Actor:
+
+  this.setName("Starfish")
+  this.setPosition(position._1, position._2)
   val texture = new Texture("starfish.png")
   val textureRegion = new TextureRegion(texture)
   val rectangle = new Rectangle(getX(), getY(), texture.getWidth().toFloat, texture.getHeight().toFloat)
