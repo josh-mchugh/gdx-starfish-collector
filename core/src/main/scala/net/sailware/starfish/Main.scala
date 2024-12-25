@@ -22,50 +22,32 @@ import com.badlogic.gdx.utils.ScreenUtils
 
 class Main extends Game:
 
-  var stage: Stage = null
-  var starfish: Starfish = null
-  var turtle: Turtle = null
-
   override def create(): Unit =
-    stage = Stage()
-    starfish = Starfish()
-    turtle = Turtle()
+    setScreen(MenuScreen(this))
 
-    stage.addActor(Background())
-    stage.addActor(starfish)
-    stage.addActor(turtle)
+class MenuScreen(game: Game) extends Screen:
 
-    setScreen(MenuScreen())
-
-  override def render(): Unit =
-    val delta = Gdx.graphics.getDeltaTime()
-
-    stage.act(delta)
-
-    if(turtle.boundry.getBoundingRectangle.overlaps(starfish.rectangle))
-      starfish.remove()
-      stage.addActor(WinOverlay())
-
-    ScreenUtils.clear(0, 0, 0, 1F)
-
-    stage.draw()
+  val stage = Stage()
+  stage.addActor(Background())
+  stage.addActor(MenuTitle())
+  stage.addActor(MenuStart())
 
   override def dispose(): Unit =
     stage.dispose()
-
-class MenuScreen extends Screen:
-
-  val stage = Stage()
-
-  override def dispose(): Unit = {  }
 
   override def hide(): Unit = {  }
 
   override def pause(): Unit =  {  }
 
   override def render(delta: Float): Unit =
-    stage.addActor(Background())
-    stage.addActor(MenuTitle())
+    stage.act(delta)
+
+    if Gdx.input.isKeyPressed(Keys.S) then
+      game.setScreen(new LevelScreen())
+
+    ScreenUtils.clear(0, 0, 0, 1F)
+
+    stage.draw()
 
   override def resize(x: Int, y: Int): Unit = {  }
 
@@ -96,6 +78,40 @@ class MenuStart extends Actor:
     super.draw(batch, parentAlpha)
 
     batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
+
+class LevelScreen extends Screen:
+  val stage = Stage()
+  val starfish = Starfish()
+  val turtle = Turtle()
+  stage.addActor(Background())
+  stage.addActor(starfish)
+  stage.addActor(turtle)
+
+  override def dispose(): Unit =
+    stage.dispose()
+
+  override def hide(): Unit = {  }
+
+  override def pause(): Unit =  {  }
+
+  override def render(delta: Float): Unit =
+    val delta = Gdx.graphics.getDeltaTime()
+
+    stage.act(delta)
+
+    if(turtle.boundry.getBoundingRectangle.overlaps(starfish.rectangle))
+      starfish.remove()
+      stage.addActor(WinOverlay())
+
+    ScreenUtils.clear(0, 0, 0, 1F)
+
+    stage.draw()
+
+  override def resize(x: Int, y: Int): Unit = {  }
+
+  override def resume(): Unit = { }
+
+  override def show(): Unit = {  }
 
 class Turtle extends Actor:
 
