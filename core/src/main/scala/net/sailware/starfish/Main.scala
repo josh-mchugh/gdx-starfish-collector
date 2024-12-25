@@ -29,15 +29,8 @@ class MenuScreen(game: Game) extends Screen:
 
   val stage = Stage()
   stage.addActor(Background())
-  stage.addActor(MenuTitle())
-  stage.addActor(MenuStart())
-
-  override def dispose(): Unit =
-    stage.dispose()
-
-  override def hide(): Unit = {  }
-
-  override def pause(): Unit =  {  }
+  stage.addActor(MenuImage("starfish-collector.png", (0, 100)))
+  stage.addActor(MenuImage("message-start.png", (0, -100)))
 
   override def render(delta: Float): Unit =
     stage.act(delta)
@@ -49,30 +42,25 @@ class MenuScreen(game: Game) extends Screen:
 
     stage.draw()
 
+  override def dispose(): Unit =
+    stage.dispose()
+
+  override def hide(): Unit = {  }
+
+  override def pause(): Unit =  {  }
+
   override def resize(x: Int, y: Int): Unit = {  }
 
   override def resume(): Unit = { }
 
   override def show(): Unit = {  }
 
-class MenuTitle extends Actor:
-  val texture = new Texture("starfish-collector.png")
+class MenuImage(src: String, offset: (Float, Float)) extends Actor:
+  val texture = new Texture(src)
   val textureRegion = new TextureRegion(texture)
   setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
   this.setPosition(400F - getWidth() / 2, 300F - getHeight() / 2)
-  moveBy(0, 100)
-
-  override def draw(batch: Batch, parentAlpha: Float): Unit =
-    super.draw(batch, parentAlpha)
-
-    batch.draw(textureRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation())
-
-class MenuStart extends Actor:
-  val texture = new Texture("message-start.png")
-  val textureRegion = new TextureRegion(texture)
-  setSize(texture.getWidth().toFloat, texture.getHeight().toFloat)
-  this.setPosition(400F - getWidth() / 2, 300F - getHeight() / 2)
-  moveBy(0, -100)
+  moveBy(offset._1, offset._2)
 
   override def draw(batch: Batch, parentAlpha: Float): Unit =
     super.draw(batch, parentAlpha)
@@ -87,13 +75,6 @@ class LevelScreen extends Screen:
   stage.addActor(starfish)
   stage.addActor(turtle)
 
-  override def dispose(): Unit =
-    stage.dispose()
-
-  override def hide(): Unit = {  }
-
-  override def pause(): Unit =  {  }
-
   override def render(delta: Float): Unit =
     val delta = Gdx.graphics.getDeltaTime()
 
@@ -106,6 +87,13 @@ class LevelScreen extends Screen:
     ScreenUtils.clear(0, 0, 0, 1F)
 
     stage.draw()
+
+  override def dispose(): Unit =
+    stage.dispose()
+
+  override def hide(): Unit = {  }
+
+  override def pause(): Unit =  {  }
 
   override def resize(x: Int, y: Int): Unit = {  }
 
